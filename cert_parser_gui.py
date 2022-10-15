@@ -17,7 +17,8 @@ class ParserGUI:
         self.frames = ParserFrames(self)
         self.viewer = PDFViewer(self)
         self.listbox = ParserListBox(self)
-        self.buttons = ParserButtons(self, parser_obj)
+        self.buttons = ParserButtons(self)
+        self.checkboxes = ParserCheckboxes(self)
         self.root.w_root.mainloop()
 
 
@@ -149,9 +150,8 @@ class ParserListBox:
 
 class ParserButtons:
 
-    def __init__(self, gui_obj, parser_obj):
+    def __init__(self, gui_obj):
         self.gui_obj = gui_obj
-        self.parser_obj = parser_obj
 
         self.next_button = Button(self.gui_obj.frames.lower_right_frame, text='BEGIN', command=self.press_next)
         self.next_button.place(anchor='nw', x=790, y=0)
@@ -161,5 +161,79 @@ class ParserButtons:
         self.gui_obj.active_cert = self.gui_obj.certs_list[0]
         self.gui_obj.viewer = PDFViewer(self.gui_obj)
         self.gui_obj.listbox.fill_list(self.gui_obj.certs_list[0])
+        self.gui_obj.checkboxes.reset_checkbox()
         self.gui_obj.certs_list.pop(0)
         self.gui_obj.buttons.next_button.configure(text='NEXT')
+
+
+class ParserCheckboxes:
+
+    def __init__(self, gui_obj,):
+        self.gui_obj = gui_obj
+        self.default_state = True
+
+        self.gl_additional_insured = tkinter.Checkbutton(self.gui_obj.frames.upper_right_frame, background='#D3D4D6',
+                                                         state=DISABLED, text='GL Additional Insured',
+                                                         command=lambda: self.click_checkbox('gl_additional_insured'))
+        self.gl_additional_insured.place(anchor='nw', x=130, y=70)
+
+        self.gl_pnc = tkinter.Checkbutton(self.gui_obj.frames.upper_right_frame, background='#D3D4D6',
+                                          state=DISABLED, text='GL Primary/Non Contributory',
+                                          command=lambda: self.click_checkbox('gl_pnc'))
+        self.gl_pnc.place(anchor='nw', x=130, y=100)
+
+        self.gl_contractual_liab = tkinter.Checkbutton(self.gui_obj.frames.upper_right_frame, background='#D3D4D6',
+                                                       state=DISABLED, text='GL Contractual Liab.',
+                                                       command=lambda: self.click_checkbox('gl_contractual_liab'))
+        self.gl_contractual_liab.place(anchor='nw', x=130, y=130)
+
+        self.al_any_auto = tkinter.Checkbutton(self.gui_obj.frames.upper_right_frame, background='#D3D4D6',
+                                               state=DISABLED, text='AL Any Auto',
+                                               command=lambda: self.click_checkbox('al_any_auto'))
+        self.al_any_auto.place(anchor='nw', x=130, y=160)
+
+        self.al_additional_insured = tkinter.Checkbutton(self.gui_obj.frames.upper_right_frame, background='#D3D4D6',
+                                                         state=DISABLED, text='AL Additional Insured',
+                                                         command=lambda: self.click_checkbox('al_additional_insured'))
+        self.al_additional_insured.place(anchor='nw', x=130, y=190)
+
+        self.al_pnc = tkinter.Checkbutton(self.gui_obj.frames.upper_right_frame, background='#D3D4D6',
+                                          state=DISABLED, text='AL Primary/Non Contributory',
+                                          command=lambda: self.click_checkbox('al_pnc'))
+        self.al_pnc.place(anchor='nw', x=130, y=220)
+
+        self.wc_wos = tkinter.Checkbutton(self.gui_obj.frames.upper_right_frame, background='#D3D4D6',
+                                          state=DISABLED, text='WC Waiver of Subrogation',
+                                          command=lambda: self.click_checkbox('wc_wos'))
+        self.wc_wos.place(anchor='nw', x=130, y=250)
+
+    def click_checkbox(self, requirement):
+        try:
+            if self.gui_obj.parser_obj.results[requirement]:
+                self.gui_obj.parser_obj.results[requirement] = False
+            else:
+                self.gui_obj.parser_obj.results[requirement] = True
+        except KeyError:
+            pass
+
+    def reset_checkbox(self):
+        if self.gui_obj.checkboxes.default_state:
+            self.gui_obj.checkboxes.default_state = False
+            self.gui_obj.checkboxes.gl_additional_insured.config(state=NORMAL)
+            self.gui_obj.checkboxes.gl_pnc.config(state=NORMAL)
+            self.gui_obj.checkboxes.gl_contractual_liab.config(state=NORMAL)
+            self.gui_obj.checkboxes.al_any_auto.config(state=NORMAL)
+            self.gui_obj.checkboxes.al_additional_insured.config(state=NORMAL)
+            self.gui_obj.checkboxes.al_pnc.config(state=NORMAL)
+            self.gui_obj.checkboxes.wc_wos.config(state=NORMAL)
+        else:
+            self.gui_obj.checkboxes.gl_additional_insured.deselect()
+            self.gui_obj.checkboxes.gl_pnc.deselect()
+            self.gui_obj.checkboxes.gl_contractual_liab.deselect()
+            self.gui_obj.checkboxes.al_any_auto.deselect()
+            self.gui_obj.checkboxes.al_additional_insured.deselect()
+            self.gui_obj.checkboxes.al_pnc.deselect()
+            self.gui_obj.checkboxes.wc_wos.deselect()
+
+
+

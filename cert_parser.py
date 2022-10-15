@@ -85,6 +85,7 @@ class CertParser:
         self.results['wc_each_emp'] = self.get_wc_each_emp(self.format_dict['wc_each_emp'])
         self.results['wc_pol_limit'] = self.get_wc_pol_limit(self.format_dict['wc_pol_limit'])
         self.results['wc_insurer'] = self.get_wc_insurer(self.format_dict['wc_insurer'], insurer_dict)
+        self.set_requirements_default()
 
     def get_vendor_name(self, coordinates):
         vendor_name = self.pdf_extract(coordinates[0], coordinates[1], coordinates[2], coordinates[3])
@@ -371,6 +372,15 @@ class CertParser:
             return insurer_dict[wc_insurer]
         else:
             return '---'
+
+    def set_requirements_default(self):
+        self.results['gl_additional_insured'] = False
+        self.results['gl_pnc'] = False
+        self.results['gl_contractual_liab'] = False
+        self.results['al_any_auto'] = False
+        self.results['al_additional_insured'] = False
+        self.results['al_pnc'] = False
+        self.results['wc_wos'] = False
 
     # Detects how the agent entered the dates on the certificate. If the format entered is not mm/dd/yyyy then this
     # method will correct it while keeping the date the same.

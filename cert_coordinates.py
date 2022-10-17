@@ -6,13 +6,13 @@ class CertCoordinates:
         self.verify = (2.73, 0.35, 4.73, 0.46)
 
         # PDF coordinates to use if format is standard:
-        self.standard = {'vendor_name':      (0.85, 8.28, 2.29, 8.34),
-                         'insurer_a':        (4.83, 8.55, 7.26, 8.58),
-                         'insurer_b':        (4.83, 8.34, 7.26, 8.38),
-                         'insurer_c':        (4.83, 8.20, 7.26, 8.22),
-                         'insurer_d':        (4.83, 8.06, 7.26, 8.08),
-                         'insurer_e':        (4.83, 7.90, 7.26, 7.92),
-                         'insurer_f':        (4.83, 7.73, 7.26, 7.75),
+        self.standard = {'vendor_name':      (0.85, 8.28, 2.29, 8.34), #x1 was 4.83
+                         'insurer_a':        (4.90, 8.55, 7.26, 8.58),
+                         'insurer_b':        (4.90, 8.34, 7.26, 8.38),
+                         'insurer_c':        (4.90, 8.20, 7.26, 8.22),
+                         'insurer_d':        (4.90, 8.06, 7.26, 8.08),
+                         'insurer_e':        (4.90, 7.90, 7.26, 7.92),
+                         'insurer_f':        (4.90, 7.73, 7.26, 7.75),
                          'agent_name':       (4.82, 9.23, 6.46, 9.27),
                          'agency_name':      (0.30, 9.08, 2.85, 9.10),
                          'agent_phone':      (4.90, 9.04, 6.14, 9.07),

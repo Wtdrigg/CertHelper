@@ -4,11 +4,13 @@ from tkinter.ttk import *
 from pdf_viewer import ShowPDF
 from cert_parser import CertParser
 import clipboard
+from chrome_driver import ChromeDriver
 
 
 class ParserGUI:
 
     def __init__(self, iterator_obj, parser_obj):
+        self.driver = ChromeDriver()
         self.iterator_obj = iterator_obj
         self.parser_obj = parser_obj
         self.certs_list = []
@@ -59,10 +61,10 @@ class ParserListBox:
     def __init__(self, gui_obj):
         self.gui_obj = gui_obj
 
-        self.list = tkinter.Listbox(self.gui_obj.frames.upper_right_frame, background='#F1F1F1', height=33, width=40)
+        self.list = tkinter.Listbox(self.gui_obj.frames.upper_right_frame, background='#F1F1F1', height=34, width=40)
         self.list.place(anchor='nw', x=380, y=5)
 
-        self.list2 = tkinter.Listbox(self.gui_obj.frames.upper_right_frame, background='#F1F1F1', height=33, width=40)
+        self.list2 = tkinter.Listbox(self.gui_obj.frames.upper_right_frame, background='#F1F1F1', height=34, width=40)
         self.list2.place(anchor='nw', x=630, y=5)
 
         self.list3 = tkinter.Listbox(self.gui_obj.frames.upper_right_frame, background='#F1F1F1', height=3, width=40)
@@ -144,6 +146,8 @@ class ParserListBox:
             self.list2.insert(32, self.gui_obj.parser_obj.results['wc_each_emp'])
             self.list.insert(33, 'WC Policy Limit:')
             self.list2.insert(33, self.gui_obj.parser_obj.results['wc_pol_limit'])
+            self.list.insert(34, 'WC Insurer:')
+            self.list2.insert(34, self.gui_obj.parser_obj.results['wc_insurer'])
         else:
             self.list3.insert(2, 'Unknown - Unable to Extract')
 
@@ -153,17 +157,50 @@ class ParserButtons:
     def __init__(self, gui_obj):
         self.gui_obj = gui_obj
 
-        self.next_button = Button(self.gui_obj.frames.lower_right_frame, text='BEGIN', command=self.press_next)
+        self.next_button = Button(self.gui_obj.frames.lower_right_frame, text='BEGIN', command=self.press_begin)
         self.next_button.place(anchor='nw', x=790, y=0)
+
+        self.submit_button = Button(self.gui_obj.frames.lower_right_frame, text='SUBMIT to Riskonnect', command=self.press_submit)
+        self.submit_button.place(anchor='nw', x=740, y=30)
+
+    def press_begin(self):
+        try:
+            self.gui_obj.certs_list = self.gui_obj.iterator_obj.process_iteration()
+            self.gui_obj.active_cert = self.gui_obj.certs_list[0]
+            self.gui_obj.viewer = PDFViewer(self.gui_obj)
+            self.gui_obj.listbox.fill_list(self.gui_obj.certs_list[0])
+            if self.gui_obj.parser_obj.results['accord_format'] != 'Scanned':
+                self.gui_obj.driver.load_vendor(self.gui_obj.parser_obj.results)
+            self.gui_obj.checkboxes.reset_checkbox()
+            self.gui_obj.certs_list.pop(0)
+        except IndexError:
+            self.gui_obj.listbox.list3.configure(text='All certificates processed')
+        self.gui_obj.buttons.next_button.configure(text='NEXT', command=self.press_next)
 
     def press_next(self):
         self.gui_obj.certs_list = self.gui_obj.iterator_obj.process_iteration()
-        self.gui_obj.active_cert = self.gui_obj.certs_list[0]
-        self.gui_obj.viewer = PDFViewer(self.gui_obj)
-        self.gui_obj.listbox.fill_list(self.gui_obj.certs_list[0])
-        self.gui_obj.checkboxes.reset_checkbox()
-        self.gui_obj.certs_list.pop(0)
-        self.gui_obj.buttons.next_button.configure(text='NEXT')
+        try:
+            self.gui_obj.active_cert = self.gui_obj.certs_list[0]
+            self.gui_obj.driver.close_current_tab()
+            self.gui_obj.driver.switch_tab_to_1()
+            self.gui_obj.viewer = PDFViewer(self.gui_obj)
+            self.gui_obj.listbox.fill_list(self.gui_obj.certs_list[0])
+            if self.gui_obj.parser_obj.results['accord_format'] != 'Scanned':
+                self.gui_obj.driver.load_vendor(self.gui_obj.parser_obj.results)
+            self.gui_obj.checkboxes.reset_checkbox()
+            self.gui_obj.certs_list.pop(0)
+        except IndexError:
+                self.gui_obj.listbox.list.delete(0, 'end')
+                self.gui_obj.listbox.list2.delete(0, 'end')
+                self.gui_obj.listbox.list3.delete(0, 'end')
+                self.gui_obj.listbox.list3.insert(1, 'All Certificates Completed')
+                self.gui_obj.viewer.pdf_viewer.text.destroy()
+                self.gui_obj.viewer.pdf_viewer.scroll_x.destroy()
+                self.gui_obj.viewer.pdf_viewer.scroll_y.destroy()
+
+    def press_submit(self):
+        self.gui_obj.driver.submit_to_rk(self.gui_obj.parser_obj.results)
+
 
 
 class ParserCheckboxes:

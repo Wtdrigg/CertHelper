@@ -16,17 +16,19 @@ class ShowPDF:
         self.frame = ''
         self.display_msg = Label()
         self.text = Text()
+        self.scroll_x = Scrollbar()
+        self.scroll_y = Scrollbar()
         self.img_object_li = []
 
     def pdf_view(self, master, width=1200, height=600, pdf_location="", bar=True, load="after"):
 
         self.frame = Frame(master, width=width, height=height, background="#F1F1F1")
 
-        scroll_y = Scrollbar(self.frame, orient="vertical")
-        scroll_x = Scrollbar(self.frame, orient="horizontal")
+        self.scroll_y = Scrollbar(self.frame, orient="vertical")
+        self.scroll_y.pack(fill="y", side="right")
 
-        scroll_x.pack(fill="x", side="bottom")
-        scroll_y.pack(fill="y", side="right")
+        self.scroll_x = Scrollbar(self.frame, orient="horizontal")
+        self.scroll_x.pack(fill="x", side="bottom")
 
         percentage_load = StringVar()
 
@@ -37,12 +39,12 @@ class ShowPDF:
             loading = Progressbar(self.frame, orient=HORIZONTAL, length=100, mode='determinate')
             loading.pack(side=TOP, fill=X)
 
-        self.text = Text(self.frame, background='#F1F1F1', yscrollcommand=scroll_y.set, xscrollcommand=scroll_x.set,
+        self.text = Text(self.frame, background='#F1F1F1', yscrollcommand=self.scroll_y.set, xscrollcommand=self.scroll_x.set,
                          width=width, height=height)
         self.text.pack(side="left")
 
-        scroll_x.config(command=self.text.xview)
-        scroll_y.config(command=self.text.yview)
+        self.scroll_x.config(command=self.text.xview)
+        self.scroll_y.config(command=self.text.yview)
 
         def add_img():
             percentage = 0
